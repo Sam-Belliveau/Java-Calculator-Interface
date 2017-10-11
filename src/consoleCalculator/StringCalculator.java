@@ -258,6 +258,9 @@ public class StringCalculator {
 					default :
 						break;
 					}
+					if(!done){
+						break;
+					}
 				}
 			}
 			
@@ -298,6 +301,9 @@ public class StringCalculator {
 					default :
 						break;
 					}
+					if(!done){
+						break;
+					}
 				}
 			}
 			
@@ -327,6 +333,9 @@ public class StringCalculator {
 						break;
 						
 					default :
+						break;
+					}
+					if(!done){
 						break;
 					}
 				}
