@@ -28,7 +28,7 @@ public class StringCalculator {
 										"abs", "log", "ln", 
 										"pi", "e"};
 	
-	public static String solveString(String input, JTextArea textArea){
+	public static String solveString(String input, JTextArea textArea, int Iindent){
 		ArrayList<String> problem = splitInput(input);
 		
 		PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
@@ -38,7 +38,7 @@ public class StringCalculator {
 		String steps = "";
 		String output = "";
 
-		
+		int indent = Iindent;
 		
 		try{
 			/* Constants */
@@ -102,8 +102,14 @@ public class StringCalculator {
 			}
 			
 			if(debug){
+				for(int z = 0; z < indent; z++){
+					System.out.print("--");
+				}
 				System.out.print("Start: ");
-				System.out.println(returnList(problem)+"\n");
+				System.out.println(returnList(problem));
+				for(int z = 0; z < indent; z++){
+					System.out.print("--");
+				}System.out.println();
 				steps.concat(returnList(problem) + System.lineSeparator());
 			}
 			
@@ -137,13 +143,17 @@ public class StringCalculator {
 				/* If Brackets Are Found */
 				if(useSection){ 
 					done = false;
+					indent++;
 					if(debug){
-						System.out.println("\n-----START BRACKET-----");
+						for(int z = 0; z < indent; z++){
+							System.out.print("==");	
+						}
+						System.out.println("START BRACKET=");
 					}
 					/* Combine The List From Two Points */
 					for(int index = indexStart+1; index < indexEnd; index++){
 						section += problem.get(index);
-					} problem.set(indexStart, solveString(section, textArea));
+					} problem.set(indexStart, solveString(section, textArea, indent));
 					
 					/* Remove Left Over Items */
 					for(int i = 0; i < indexEnd-indexStart; i++){
@@ -153,8 +163,19 @@ public class StringCalculator {
 					lookForBlanks(problem, indexStart);
 					
 					if(debug){
-						System.out.println("------END BRACKET------\n");
+						for(int z = 0; z < indent; z++){
+							System.out.print("==");
+						}
+						System.out.println("END BRACKET===");
+						indent--;
+						for(int z = 0; z < indent; z++){
+							System.out.print("--");
+						}
+						System.out.print("Start: ");
 						System.out.println(returnList(problem));
+						for(int z = 0; z < indent; z++){
+							System.out.print("--");
+						}System.out.println();
 						steps.concat(returnList(problem) + System.lineSeparator());
 					}
 				}
@@ -251,6 +272,9 @@ public class StringCalculator {
 					if(!done){ // looks for spots with no op and replaces with multiplication
 						lookForBlanks(problem, i);
 						if(debug){
+							for(int z = 0; z < indent; z++){
+								System.out.print("--");
+							}
 							System.out.println(returnList(problem));
 							steps.concat(returnList(problem) + System.lineSeparator());
 						}
@@ -291,6 +315,9 @@ public class StringCalculator {
 					}
 					if(!done){
 						if(debug){
+							for(int z = 0; z < indent; z++){
+								System.out.print("--");
+							}
 							System.out.println(returnList(problem));
 							steps.concat(returnList(problem) + System.lineSeparator());
 						}
@@ -337,6 +364,9 @@ public class StringCalculator {
 					}
 					if(!done){
 						if(debug){
+							for(int z = 0; z < indent; z++){
+								System.out.print("--");
+							}
 							System.out.println(returnList(problem));
 							steps.concat(returnList(problem) + System.lineSeparator());
 						}
@@ -374,6 +404,9 @@ public class StringCalculator {
 					}
 					if(!done){
 						if(debug){
+							for(int z = 0; z < indent; z++){
+								System.out.print("--");
+							}
 							System.out.println(returnList(problem));
 							steps.concat(returnList(problem) + System.lineSeparator());
 						}
@@ -395,7 +428,13 @@ public class StringCalculator {
 		}
 		
 
-		System.out.println("\nRESULT: " + output);
+		for(int z = 0; z < indent; z++){
+			System.out.print("--");
+		}System.out.println();
+		for(int z = 0; z < indent; z++){
+			System.out.print("--");
+		}
+		System.out.println("RESULT: " + output);
 		
 		return output;
 	}

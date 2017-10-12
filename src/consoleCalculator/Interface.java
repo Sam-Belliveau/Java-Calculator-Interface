@@ -70,8 +70,7 @@ public class Interface extends JFrame{
 					StringCalculator.isDeg = true;
 				}
 				explain.setText("");
-				System.out.println("STEPS TO SOLUTION:");
-	            output.setText(StringCalculator.solveString(equation.getText(), explain));
+	            output.setText(StringCalculator.solveString(equation.getText(), explain, 0));
 	            explain.update(explain.getGraphics());
 			}
 		});
@@ -82,7 +81,7 @@ public class Interface extends JFrame{
 		String[] options = {"Radians","Degrees"};
 		deg = new JComboBox<String>(options);
 		deg.setBounds(675, 320, 200, 35);
-		deg.setFont(new Font(font, Font.PLAIN, 20));
+		deg.setFont(new Font(font, Font.PLAIN, 16));
 		deg.setForeground(Text);
 		deg.setBackground(TextBackground);
 		add(deg);
@@ -95,19 +94,19 @@ public class Interface extends JFrame{
 		output.setOpaque(true);
 		add(output);
 		
-		explain.setBounds(50, 550, 1000, 300);
-		explain.setFont(new Font(font, Font.PLAIN, 20));
+		explain.setBounds(50, 550, 1000, 350);
+		explain.setFont(new Font(font, Font.BOLD, 16));
 		explain.setBorder(BorderFactory.createLineBorder(Text));
 		explain.setForeground(Text);
 		explain.setBackground(TextBackground);
 		explain.setOpaque(true);
 		explain.setEditable(false);
 		JScrollPane sp = new JScrollPane(explain); 
-		sp.setBounds(50, 550, 1000, 300);
+		sp.setBounds(50, 550, 1000, 350);
 		add(sp);
 		
 		pack();
-		setSize(1100,900);
+		setSize(1100,950);
 		setVisible(true);
 	}
 	
