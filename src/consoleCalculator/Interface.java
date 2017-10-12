@@ -4,14 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.PrintStream;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class Interface extends JFrame{
@@ -26,7 +21,9 @@ public class Interface extends JFrame{
 	
 	public JComboBox<String> deg = new JComboBox<String>();
 	
-	public String font = "Comic Sans";
+	public JTextArea explain = new JTextArea("STEPS TO SOLUTION:");
+	
+	public String font = "Consolas";
 	
 	public final Color Text = new Color(0,0,0);
 	public final Color TextBackground = new Color(255,255,255);
@@ -38,6 +35,10 @@ public class Interface extends JFrame{
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		getContentPane().setLayout(null);
 		getContentPane().setBackground(Background);
+		
+		PrintStream printStream = new PrintStream(new CustomOutputStream(explain));
+		System.setOut(printStream);
+		System.setErr(printStream);
 		
 		supported.setBounds(50, 25, 1000, 80);
 		supported.setFont(new Font(font, Font.PLAIN, 24));
@@ -68,7 +69,10 @@ public class Interface extends JFrame{
 				} else {
 					StringCalculator.isDeg = true;
 				}
-	            output.setText(StringCalculator.solveString(equation.getText()));
+				explain.setText("");
+				System.out.println("STEPS TO SOLUTION:");
+	            output.setText(StringCalculator.solveString(equation.getText(), explain));
+	            explain.update(explain.getGraphics());
 			}
 		});
 		solve.setForeground(Text);
@@ -91,8 +95,19 @@ public class Interface extends JFrame{
 		output.setOpaque(true);
 		add(output);
 		
+		explain.setBounds(50, 550, 1000, 300);
+		explain.setFont(new Font(font, Font.PLAIN, 20));
+		explain.setBorder(BorderFactory.createLineBorder(Text));
+		explain.setForeground(Text);
+		explain.setBackground(TextBackground);
+		explain.setOpaque(true);
+		explain.setEditable(false);
+		JScrollPane sp = new JScrollPane(explain); 
+		sp.setBounds(50, 550, 1000, 300);
+		add(sp);
+		
 		pack();
-		setSize(1100,600);
+		setSize(1100,900);
 		setVisible(true);
 	}
 	

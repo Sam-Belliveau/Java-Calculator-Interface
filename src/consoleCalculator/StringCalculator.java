@@ -1,12 +1,24 @@
 package consoleCalculator;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
+
+import javax.swing.JTextArea;
 
 public class StringCalculator {
 
 	public static boolean isDeg = false;
 	
-	public static final boolean debug = false;
+	public static final boolean debug = true;
+	
+	public static String steps;
+	
+	public static String getSteps(){
+		System.out.println(steps);
+		return steps;
+	}
 	
 	public static final String[] op = {	"(", ")",
 										"+", "-", "*", "/", 
@@ -16,18 +28,22 @@ public class StringCalculator {
 										"abs", "log", "ln", 
 										"pi", "e"};
 	
-	public static String solveString(String input){
+	public static String solveString(String input, JTextArea textArea){
 		ArrayList<String> problem = splitInput(input);
 		
-		String output = "";
+		PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
+		System.setOut(printStream);
+		System.setErr(printStream);
 		
-		if(debug){System.out.println("Equation: " + problem);}
+		String steps = "";
+		String output = "";
+
+		
 		
 		try{
 			/* Constants */
 			boolean done = false;
 			while(!done){
-				if(debug){System.out.println("Equation: " + problem);}
 				
 				done = true;
 				
@@ -56,10 +72,44 @@ public class StringCalculator {
 				}
 			}
 			
+			/* Negatives */
+			done = false;
+			while(!done){
+				
+				done = true;
+				// If First Thing Is Negative
+			    if(problem.get(0).equals("-")) {
+			    	done = false;
+			    	problem.set(0, Double.toString(0-Double.parseDouble(problem.get(1))));
+	    			problem.remove(1);
+			    }
+			    // If other things are negative
+			    for(int i = 1; i < problem.size()-1; i++){
+			        if(problem.get(i).equals("-")){
+				        try{
+				            Double.parseDouble(problem.get(i-1));
+				        } 
+				        // If Number before can not be parsed, it is negative
+				        catch (NumberFormatException e) {
+				        	done = false;
+				        	
+				        	/* Sets number to negative and removes other number */
+				        	problem.set(i, Double.toString(0-Double.parseDouble(problem.get(i+1))));
+	    					problem.remove(i+1);
+				        }
+			        }
+			    }
+			}
+			
+			if(debug){
+				System.out.print("Start: ");
+				System.out.println(returnList(problem)+"\n");
+				steps.concat(returnList(problem) + System.lineSeparator());
+			}
+			
 			/* Brackets */
 			done = false;
 			while(!done){
-				if(debug){System.out.println("Equation: " + problem);}
 				
 				done = true;
 				int indexStart = 0; // Starting and stopping brackets
@@ -87,11 +137,13 @@ public class StringCalculator {
 				/* If Brackets Are Found */
 				if(useSection){ 
 					done = false;
-					
+					if(debug){
+						System.out.println("\n-----START BRACKET-----");
+					}
 					/* Combine The List From Two Points */
 					for(int index = indexStart+1; index < indexEnd; index++){
 						section += problem.get(index);
-					} problem.set(indexStart, solveString(section));
+					} problem.set(indexStart, solveString(section, textArea));
 					
 					/* Remove Left Over Items */
 					for(int i = 0; i < indexEnd-indexStart; i++){
@@ -99,43 +151,19 @@ public class StringCalculator {
 					}
 					
 					lookForBlanks(problem, indexStart);
+					
+					if(debug){
+						System.out.println("------END BRACKET------\n");
+						System.out.println(returnList(problem));
+						steps.concat(returnList(problem) + System.lineSeparator());
+					}
 				}
 			}
-			
-			/* Negatives */
-			done = false;
-			while(!done){
-				if(debug){System.out.println("Equation: " + problem);}
-				
-				done = true;
-				// If First Thing Is Negative
-			    if(problem.get(0).equals("-")) {
-			    	done = false;
-			    	problem.set(0, Double.toString(0-Double.parseDouble(problem.get(1))));
-	    			problem.remove(1);
-			    }
-			    // If other things are negative
-			    for(int i = 1; i < problem.size()-1; i++){
-			        if(problem.get(i).equals("-")){
-				        try{
-				            Double.parseDouble(problem.get(i-1));
-				        } 
-				        // If Number before can not be parsed, it is negative
-				        catch (NumberFormatException e) {
-				        	done = false;
-				        	
-				        	/* Sets number to negative and removes other number */
-				        	problem.set(i, Double.toString(0-Double.parseDouble(problem.get(i+1))));
-	    					problem.remove(i+1);
-				        }
-			        }
-			    }
-			}
+
 			
 			/* Single Number Operators */
 			done = false;
 			while(!done){
-				if(debug){System.out.println("Equation: " + problem);}
 				
 				done = true;
 				
@@ -222,6 +250,10 @@ public class StringCalculator {
 					}
 					if(!done){ // looks for spots with no op and replaces with multiplication
 						lookForBlanks(problem, i);
+						if(debug){
+							System.out.println(returnList(problem));
+							steps.concat(returnList(problem) + System.lineSeparator());
+						}
 					    break;
 					}
 				}
@@ -230,7 +262,6 @@ public class StringCalculator {
 			/* Mult-Number Operators That Come Before *, /, ect */
 			done = false;
 			while(!done){
-				if(debug){System.out.println("Equation: " + problem);}
 				
 				done = true; 
 				
@@ -259,6 +290,10 @@ public class StringCalculator {
 						break;
 					}
 					if(!done){
+						if(debug){
+							System.out.println(returnList(problem));
+							steps.concat(returnList(problem) + System.lineSeparator());
+						}
 						break;
 					}
 				}
@@ -266,8 +301,7 @@ public class StringCalculator {
 			
 			/* MULTIPLYING DEVIDING AND MOD */
 			done = false;
-			while(!done){	
-				if(debug){System.out.println("Equation: " + problem);}
+			while(!done){
 				
 				done = true;
 				/*** MULTIPLY/DIVIDE ***/
@@ -302,6 +336,10 @@ public class StringCalculator {
 						break;
 					}
 					if(!done){
+						if(debug){
+							System.out.println(returnList(problem));
+							steps.concat(returnList(problem) + System.lineSeparator());
+						}
 						break;
 					}
 				}
@@ -310,7 +348,6 @@ public class StringCalculator {
 			/* ADD/SUBTRACT */
 			done = false;
 			while(!done){
-				if(debug){System.out.println("Equation: " + problem);}
 				
 				done = true;
 				for(int i = 1; i < problem.size(); i++){
@@ -336,6 +373,10 @@ public class StringCalculator {
 						break;
 					}
 					if(!done){
+						if(debug){
+							System.out.println(returnList(problem));
+							steps.concat(returnList(problem) + System.lineSeparator());
+						}
 						break;
 					}
 				}
@@ -352,6 +393,9 @@ public class StringCalculator {
 		} catch (Exception e){
 			output = e + "";
 		}
+		
+
+		System.out.println("\nRESULT: " + output);
 		
 		return output;
 	}
@@ -414,6 +458,15 @@ public class StringCalculator {
 		return outputList;
 	}
 
+	private static String returnList(ArrayList<String> problem){
+		String out = "";
+		for(int i = 0; i < problem.size(); i++){
+			out += problem.get(i) + " ";
+		}
+		
+		return out;
+	}
+	
 	private static void removeSurroundingItems(ArrayList<String> problem, int index){
 		problem.remove(index+1);
 		problem.remove(index-1);
@@ -450,4 +503,18 @@ public class StringCalculator {
 		}
 		return false;
 	}
+} class CustomOutputStream extends OutputStream {
+    private JTextArea textArea;
+     
+    public CustomOutputStream(JTextArea textArea) {
+        this.textArea = textArea;
+    }
+     
+    @Override
+    public void write(int b) throws IOException {
+        // redirects data to the text area
+        textArea.append(String.valueOf((char)b));
+        // scrolls the text area to the end of data
+        textArea.setCaretPosition(textArea.getDocument().getLength());
+    }
 }
